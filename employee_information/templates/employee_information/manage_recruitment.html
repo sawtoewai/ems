@@ -1,0 +1,116 @@
+<div class="container-fluid">
+    <form action="" id="recruitment-form">
+        <input type="hidden" name="id" value="{% if recruitment.pk %}{{recruitment.pk}}{% endif %}">
+        <div class="row">
+            <div class="col-md-6">
+                <div class="form-group mb-3">
+                    <label for="name" class="control-label">Name</label>
+                    <input type="text" name="name" id="name" class="form-control form-control-sm rounded-0" value="{% if recruitment.name %}{{recruitment.name}}{% endif %}" required>
+                </div>
+                <div class="form-group mb-3">
+                    <label for="sequence" class="control-label">Sequence</label>
+                    <input type="text" name="sequence" id="sequence" class="form-control form-control-sm rounded-0" value="{% if recruitment.sequence %}{{recruitment.sequence}}{% endif %}" required>
+                </div>
+                <div class="form-group mb-3">
+                    <label for="appointment_date" class="control-label">Appointment Date</label>
+                    <input type="date" name="appointment_date" id="appointment_date" class="form-control form-control-sm rounded-0" value="{% if recruitment.appointment_date %}{{recruitment.appointment_date}}{% endif %}">
+                </div>
+                <div class="form-group mb-3">
+                    <label for="note" class="control-label">Note</label>
+                    <input type="text" name="note" id="note" class="form-control form-control-sm rounded-0" value="{% if recruitment.note %}{{recruitment.note}}{% endif %}" required>
+                </div>
+            </div>
+            <div class="col-md-6">
+                <div class="form-group mb-3">
+                    <label for="employee_id" class="control-label">Employee</label>
+                    <select name="employee_id" id="employee_id" class="form-select form-select-sm rounded-0" required>
+                        {% if not recruitment.employee_id %}
+                        <option value="1" disabled selected>Please Select Here</option>
+                        {% else %}
+                        <option value="1" disabled>Please Select Here</option>
+                        {% endif %}
+                        {% for employee in employees %}
+                            {% if recruitment.employee_id and recruitment.employee_id == employee.id %}
+                            <option value="{{ employee.id }}" selected>{{ employee }}</option>
+                            {% else %}
+                            <option value="{{ employee.id }}">{{ employee }}</option>
+                            {% endif %}
+                        {% endfor %}
+
+                    </select>
+                </div>
+                <div class="form-group mb-3">
+                    <label for="status" class="control-label">Status</label>
+                    <select name="status" id="status" class="form-select form-select-sm rounded-0" required>
+                        {% if recruitment.status == 1 %}
+                        <option value="1" selected >Active</option>
+                        {% else %}
+                        <option value="1" >Active</option>
+                        {% endif %}
+            
+                        {% if recruitment.status == 0 %}
+                        <option value="0" selected>Inactive</option>
+                        {% else %}
+                        <option value="0">Inactive</option>
+                        {% endif %}
+                    </select>
+                </div>
+                <div class="form-group mb-3">
+                    <label for="create_date" class="control-label">Create Date</label>
+                    <input type="date" name="create_date" id="create_date" class="form-control form-control-sm rounded-0" value="{% if recruitment.create_date %}{{recruitment.create_date}}{% endif %}" required>
+                </div>
+            </div>
+        </div>
+    </form>
+</div>
+<script>
+    $(function() {
+        $('#recruitment-form').submit(function(e) {
+            e.preventDefault();
+            var _this = $(this)
+            $('.err-msg').remove();
+            var el = $('<div>')
+            el.addClass("alert alert-danger err-msg")
+            el.hide()
+            if (_this[0].checkValidity() == false) {
+                _this[0].reportValidity();
+                return false;
+            }
+            start_loader();
+            $.ajax({
+                headers: {
+                    "X-CSRFToken": '{{csrf_token}}'
+                },
+                url: "{% url 'save-recruitment-page' %}",
+                data: new FormData($(this)[0]),
+                cache: false,
+                contentType: false,
+                processData: false,
+                method: 'POST',
+                type: 'POST',
+                dataType: 'json',
+                error: err => {
+                    console.log(err)
+                    alert_toast("An error occured", 'error');
+                    end_loader();
+                },
+                success: function(resp) {
+                    if (typeof resp == 'object' && resp.status == 'success') {
+                        el.removeClass("alert alert-danger err-msg")
+                        location.reload()
+                    } else if (resp.status == 'failed' && !!resp.msg) {
+                        el.text(resp.msg)
+                    } else {
+                        el.text("An error occured", 'error');
+                        end_loader();
+                        console.err(resp)
+                    }
+                    _this.prepend(el)
+                    el.show('slow')
+                    $("html, body, .modal").scrollTop(0);
+                    end_loader()
+                }
+            })
+        })
+    })
+</script>

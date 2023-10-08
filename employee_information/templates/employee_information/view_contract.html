@@ -1,0 +1,94 @@
+{% load humanize %}
+<style>
+    #uni_modal .modal-footer {
+        display: none;
+    }
+</style>
+<div class="container-fluid">
+    <div class="row">
+        <div class="col-sm-6">
+            <dl>
+                <dt class="mdc-typography mdc-theme--primary">Name</dt>
+                <dd class="ps-3 fw-bolder">{{ contract.name }}</dd>
+                <dt class="mdc-typography mdc-theme--primary">Rank</dt>
+                <dd class="ps-3 fw-bolder">{{ contract.rank }}</dd>
+                <dt class="mdc-typography mdc-theme--primary">Start Date</dt>
+                <dd class="ps-3 fw-bolder">{{ contract.start_date }}</dd>
+                <dt class="mdc-typography mdc-theme--primary">End Date</dt>
+                <dd class="ps-3 fw-bolder">{{ contract.end_date }}</dd>
+                <dt class="mdc-typography mdc-theme--primary">Note</dt>
+                <dd class="ps-3 fw-bolder">{{ contract.note }}</dd>
+                <dt class="mdc-typography mdc-theme--primary">Attachment</dt>
+                <dd class="ps-3 fw-bolder">{{ contract.attachment }}</dd>
+            </dl>
+        </div>
+        <div class="col-sm-6">
+            <dl>
+                <dt class="mdc-typography mdc-theme--primary">Employee</dt>
+                <dd class="ps-3 fw-bolder">{{ contract.employee_id }}</dd>
+                <dt class="mdc-typography mdc-theme--primary">Status</dt>
+                <dd class="ps-3 fw-bolder">
+                    {% if contract.status == 1 %}
+                    <span class="rounded-pill px-3">Active</span> {% else %}
+                    <span class="rounded-pill px-3">Inactive</span> {% endif %}
+                </dd>
+                <button class="mdc-button mdc-button--raised p-1 icon-button filled-button--light mdc-ripple-upgraded edit-data" type="button" data-id="{{ contract.pk }}" title="Edit">
+                <i class="material-icons mdc-button__icon">edit</i>
+                </button>
+                <button class="mdc-button mdc-button--raised p-1 icon-button filled-button--danger mdc-ripple-upgraded delete-data" type="button" data-id="{{ contract.pk }}" title="Delete">
+                <i class="material-icons mdc-button__icon">deleteoutline</i>
+                </button>
+            </dl>
+        </div>
+    </div>
+    <div class="clear-fix py-3"></div>
+    <div class="d-flex w-100 align-items-center justify-content-end">
+        <button class="btn btn-default border btn-sm rounded-0 d-flex align-items-center" type="button" data-bs-dismiss="modal"><i class="material-icons mdc-list-item__start-detail mdc-drawer-item-icon" aria-hidden="true">close</i> Close</button>
+    </div>
+</div>
+{% block ScriptBlock %}
+<script>
+    $(function() {
+        $('#create_new').click(function() {
+            uni_modal("Add New Contract", "{% url 'manage_contracts-page' %}")
+        })
+        $('.view-data').click(function() {
+            uni_modal("Contract Details", "{% url 'view-contract-page' %}?id=" + $(this).attr('data-id'), 'mid-large')
+        })
+        $('.edit-data').click(function() {
+            uni_modal("Edit Contract", "{% url 'manage_contracts-page' %}?id=" + $(this).attr('data-id'))
+        })
+        $('.delete-data').click(function() {
+            _conf("Are you sure to delete this contract?", "delete_contract", [$(this).attr('data-id')])
+        })
+    })
+
+    function delete_contract($id) {
+        start_loader();
+        $.ajax({
+            headers: {
+                "X-CSRFToken": '{{csrf_token}}'
+            },
+            url: "{% url 'delete-contract' %}",
+            method: "POST",
+            data: {
+                id: $id
+            },
+            dataType: "json",
+            error: err => {
+                console.log(err)
+                alert_toast("An error occured.", 'error');
+                end_loader();
+            },
+            success: function(resp) {
+                if (typeof resp == 'object' && resp.status == 'success') {
+                    location.reload();
+                } else {
+                    alert_toast("An error occured.", 'error');
+                    end_loader();
+                }
+            }
+        })
+    }
+</script>
+{% endblock ScriptBlock %}

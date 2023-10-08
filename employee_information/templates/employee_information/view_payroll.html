@@ -1,0 +1,102 @@
+{% load humanize %}
+<style>
+    #uni_modal .modal-footer {
+        display: none;
+    }
+</style>
+<div class="container-fluid">
+    <div class="row">
+        <div class="col-sm-6">
+            <dl>
+                <dt class="mdc-typography mdc-theme--primary">Name</dt>
+                <dd class="ps-3 fw-bolder">{{ payroll.name }}</dd>
+                <dt class="mdc-typography mdc-theme--primary">Position</dt>
+                <dd class="ps-3 fw-bolder">{{ payroll.position }}</dd>
+                <dt class="mdc-typography mdc-theme--primary">Rank</dt>
+                <dd class="ps-3 fw-bolder">{{ payroll.rant }}</dd>
+                <dt class="mdc-typography mdc-theme--primary">Date Of Commence</dt>
+                <dd class="ps-3 fw-bolder">{{ payroll.date_of_commence }}</dd>
+                <dt class="mdc-typography mdc-theme--primary">Basic Salary</dt>
+                <dd class="ps-3 fw-bolder">{{ payroll.basic_salary }}</dd>
+                <dt class="mdc-typography mdc-theme--primary">Meal Allowance</dt>
+                <dd class="ps-3 fw-bolder">{{ payroll.meal_allowance }}</dd>
+                <dt class="mdc-typography mdc-theme--primary">Living Cost Allowance</dt>
+                <dd class="ps-3 fw-bolder">{{ payroll.living_cost_allowance }}</dd>
+                <dt class="mdc-typography mdc-theme--primary">Trveling Allowance</dt>
+                <dd class="ps-3 fw-bolder">{{ payroll.traveling_allowance}}</dd>
+                <dt class="mdc-typography mdc-theme--primary">Special Allowance</dt>
+                <dd class="ps-3 fw-bolder">{{ payroll.special_allowance}</dd>
+                <dt class="mdc-typography mdc-theme--primary">Overtime</dt>
+                <dd class="ps-3 fw-bolder">{{ payroll.overtime}}</dd>
+                <dt class="mdc-typography mdc-theme--primary">SSB_Deduction</dt>
+                <dd class="ps-3 fw-bolder">{{ payroll.ssb_deduction}}</dd>
+            </dl>
+        </div>
+        <div class="col-sm-6">
+            <dl>
+                <dt class="mdc-typography mdc-theme--primary">Recruitment</dt>
+                <dd class="ps-3 fw-bolder">{{ payroll.recruitment_id }}</dd>
+                <dt class="mdc-typography mdc-theme--primary">Emergency Loan</dt>
+                <dd class="ps-3 fw-bolder">{{ payroll.emergency_loan }}</dd>
+                <dt class="mdc-typography mdc-theme--primary">Income Tax</dt>
+                <dd class="ps-3 fw-bolder">{{ payroll.income_tax }}</dd>
+            </dl>
+            <button class="mdc-button mdc-button--raised p-1 icon-button filled-button--light mdc-ripple-upgraded edit-data" type="button" data-id="{{ payroll.pk }}" title="Edit">
+                <i class="material-icons mdc-button__icon">edit</i>
+                </button>
+                <button class="mdc-button mdc-button--raised p-1 icon-button filled-button--danger mdc-ripple-upgraded delete-data" type="button" data-id="{{ payroll.pk }}" title="Delete">
+                <i class="material-icons mdc-button__icon">deleteoutline</i>
+                </button>
+        </div>
+    </div>
+    <div class="clear-fix py-3"></div>
+    <div class="d-flex w-100 align-items-center justify-content-end">
+        <button class="btn btn-default border btn-sm rounded-0 d-flex align-items-center" type="button" data-bs-dismiss="modal"><i class="material-icons mdc-list-item__start-detail mdc-drawer-item-icon" aria-hidden="true">close</i> Close</button>
+    </div>
+</div>
+{% block ScriptBlock %}
+<script>
+    $(function() {
+        $('#create_new').click(function() {
+            uni_modal("Add New Payroll", "{% url 'manage_payrolls-page' %}")
+        })
+        $('.view-data').click(function() {
+            uni_modal("Payroll Details", "{% url 'view-payroll-page' %}?id=" + $(this).attr('data-id'), 'mid-large')
+        })
+        $('.edit-data').click(function() {
+            uni_modal("Edit Payroll", "{% url 'manage_payrolls-page' %}?id=" + $(this).attr('data-id'))
+        })
+        $('.delete-data').click(function() {
+            _conf("Are you sure to delete this payroll?", "delete_payroll", [$(this).attr('data-id')])
+        })
+    })
+
+    function delete_payroll($id) {
+        start_loader();
+        $.ajax({
+            headers: {
+                "X-CSRFToken": '{{csrf_token}}'
+            },
+            url: "{% url 'delete-payroll' %}",
+            method: "POST",
+            data: {
+                id: $id
+            },
+            dataType: "json",
+            error: err => {
+                console.log(err)
+                alert_toast("An error occured.", 'error');
+                end_loader();
+            },
+            success: function(resp) {
+                if (typeof resp == 'object' && resp.status == 'success') {
+                    location.reload();
+                } else {
+                    alert_toast("An error occured.", 'error');
+                    end_loader();
+                }
+            }
+        })
+    }
+</script>
+{% endblock ScriptBlock %}

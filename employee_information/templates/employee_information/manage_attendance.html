@@ -1,0 +1,124 @@
+<div class="container-fluid">
+    <form action="" id="attendance-form">
+        <input type="hidden" name="id" value="{% if attendance.pk %}{{attendance.pk}}{% endif %}">
+        <div class="row">
+            <div class="col-md-6">
+                <div class="form-group mb-3">
+                    <label for="name" class="control-label">Name</label>
+                    <input type="text" name="name" id="name" class="form-control form-control-sm rounded-0" value="{% if attendance.name %}{{attendance.name}}{% endif %}" required>
+                </div>
+                <div class="form-group mb-3">
+                    <label for="department" class="control-label">Department</label>
+                    <input type="text" name="department" id="department" class="form-control form-control-sm rounded-0" value="{% if attendance.department %}{{attendance.department}}{% endif %}" required>
+                </div>
+                <div class="form-group mb-3">
+                    <label for="working_day" class="control-label">Working Day</label>
+                    <input type="number" name="working_day" id="working_day" class="form-control form-control-sm rounded-0" value="{% if attendance.working_day %}{{attendance.working_day}}{% endif %}">
+                </div>
+                <div class="form-group mb-3">
+                    <label for="day_off" class="control-label">Day Off</label>
+                    <input type="number" name="day_off" id="day_off" class="form-control form-control-sm rounded-0" value="{% if attendance.day_off %}{{attendance.day_off}}{% endif %}" required>
+                </div>
+                <div class="form-group mb-3">
+                    <label for="check_in" class="control-label">Check In</label>
+                    <input type="date" name="check_in" id="check_in" class="form-control form-control-sm rounded-0" value="{% if attendance.check_in %}{{attendance.check_in}}{% endif %}" required>
+                </div>
+                <div class="form-group mb-3">
+                    <label for="check_out" class="control-label">Check Out</label>
+                    <input type="date" name="check_out" id="check_out" class="form-control form-control-sm rounded-0" value="{% if attendance.check_out %}{{attendance.check_out}}{% endif %}" required>
+                </div>
+            </div>
+            <div class="col-md-6">
+                <div class="form-group mb-3">
+                    <label for="payroll_id" class="control-label">Payroll</label>
+                    <select name="payroll_id" id="payroll_id" class="form-select form-select-sm rounded-0" required>
+                        {% if not attendance.payroll_id %}
+                        <option value="1" disabled selected>Please Select Here</option>
+                        {% else %}
+                        <option value="1" disabled>Please Select Here</option>
+                        {% endif %}
+                        {% for payroll in payrolls %}
+                            {% if attendance.payroll_id and attendance.payroll_id == payroll.id %}
+                            <option value="{{ payroll.id }}" selected>{{ payroll.name }}</option>
+                            {% else %}
+                            <option value="{{ payroll.id }}">{{ payroll.name }}</option>
+                            {% endif %}
+                        {% endfor %}
+
+                    </select>
+                </div>
+                <div class="form-group mb-3">
+                    <label for="status" class="control-label">Status</label>
+                    <select name="status" id="status" class="form-select form-select-sm rounded-0" required>
+                        {% if attendance.status == 1 %}
+                        <option value="1" selected >Active</option>
+                        {% else %}
+                        <option value="1" >Active</option>
+                        {% endif %}
+            
+                        {% if attendance.status == 0 %}
+                        <option value="0" selected>Inactive</option>
+                        {% else %}
+                        <option value="0">Inactive</option>
+                        {% endif %}
+                    </select>
+                </div>
+                <div class="form-group mb-3">
+                    <label for="remark" class="control-label">Remark</label>
+                    <input type="text" name="remark" id="remark" class="form-control form-control-sm rounded-0" value="{% if attendance.remark %}{{attendance.remark}}{% endif %}" required>
+                </div>
+            </div>
+        </div>
+    </form>
+</div>
+<script>
+    $(function() {
+        $('#attendance-form').submit(function(e) {
+            e.preventDefault();
+            var _this = $(this)
+            $('.err-msg').remove();
+            var el = $('<div>')
+            el.addClass("alert alert-danger err-msg")
+            el.hide()
+            if (_this[0].checkValidity() == false) {
+                _this[0].reportValidity();
+                return false;
+            }
+            start_loader();
+            $.ajax({
+                headers: {
+                    "X-CSRFToken": '{{csrf_token}}'
+                },
+                url: "{% url 'save-attendance-page' %}",
+                data: new FormData($(this)[0]),
+                cache: false,
+                contentType: false,
+                processData: false,
+                method: 'POST',
+                type: 'POST',
+                dataType: 'json',
+                error: err => {
+                    console.log(err)
+                    alert_toast("An error occured", 'error');
+                    end_loader();
+                },
+                success: function(resp) {
+                    if (typeof resp == 'object' && resp.status == 'success') {
+                        el.removeClass("alert alert-danger err-msg")
+                        location.reload()
+                    } else if (resp.status == 'failed' && !!resp.msg) {
+                        el.text(resp.msg)
+                    } else {
+                        el.text("An error occured", 'error');
+                        end_loader();
+                        console.err(resp)
+                    }
+                    _this.prepend(el)
+                    el.show('slow')
+                    $("html, body, .modal").scrollTop(0);
+                    end_loader()
+                }
+            })
+        })
+    })
+</script>

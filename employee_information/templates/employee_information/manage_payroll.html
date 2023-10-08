@@ -1,0 +1,152 @@
+<div class="container-fluid">
+    <form action="" id="payroll-form">
+        <input type="hidden" name="id" value="{% if payroll.pk %}{{payroll.pk}}{% endif %}">
+        <div class="row">
+            <div class="col-md-6">
+                <div class="form-group mb-3">
+                    <label for="name" class="control-label">Name</label>
+                    <input type="text" name="name" id="name" class="form-control form-control-sm rounded-0" value="{% if payroll.name %}{{payroll.name}}{% endif %}" required>
+                </div>
+                <div class="form-group mb-3">
+                    <label for="position" class="control-label">Position</label>
+                    <input type="text" name="position" id="position" class="form-control form-control-sm rounded-0" value="{% if payroll.position %}{{payroll.position}}{% endif %}" required>
+                </div>
+                <div class="form-group mb-3">
+                    <label for="rank" class="control-label">Rank</label>
+                    <input type="text" name="rank" id="rank" class="form-control form-control-sm rounded-0" value="{% if payroll.rank %}{{payroll.rank}}{% endif %}">
+                </div>
+                <div class="form-group mb-3">
+                    <label for="date_of_commence" class="control-label">Date Of Commence</label>
+                    <input type="date" name="date_of_commence" id="date_of_commence" class="form-control form-control-sm rounded-0" value="{% if payroll.date_of_commence %}{{payroll.date_of_commence}}{% endif %}" required>
+                </div>
+                <div class="form-group mb-3">
+                    <label for="basic_salary" class="control-label">Basic Salary</label>
+                    <input type="number" name="basic_salary" id="basic_salary" class="form-control form-control-sm rounded-0" value="{% if payroll.basic_salary %}{{payroll.basic_salary}}{% endif %}" required>
+                </div>
+                <div class="form-group mb-3">
+                    <label for="meal_allowance" class="control-label">Meal Allowance</label>
+                    <input type="text" name="meal_allowance" id="meal_allowance" class="form-control form-control-sm rounded-0" value="{% if payroll.meal_allowance %}{{payroll.meal_allowance}}{% endif %}" required>
+                </div>
+                <div class="form-group mb-3">
+                    <label for="living_cost_allowance" class="control-label">Living Cost Allowance</label>
+                    <input type="text" name="living_cost_allowance" id="living_cost_allowance" class="form-control form-control-sm rounded-0" value="{% if payroll.living_cost_allowance %}{{payroll.living_cost_allowance}}{% endif %}" required>
+                </div>
+                <div class="form-group mb-3">
+                    <label for="traveling_allowance" class="control-label">Traveling Allowance</label>
+                    <input type="text" name="traveling_allowance" id="traveling_allowance" class="form-control form-control-sm rounded-0" value="{% if payroll.traveling_allowance %}{{payroll.traveling_allowance}}{% endif %}" required>
+                </div>
+                <div class="form-group mb-3">
+                    <label for="special_allowance" class="control-label">Special Allowance</label>
+                    <input type="text" name="special_allowance" id="special_allowance" class="form-control form-control-sm rounded-0" value="{% if payroll.special_allowance %}{{payroll.special_allowance}}{% endif %}" required>
+                </div>
+                <div class="form-group mb-3">
+                    <label for="overtime" class="control-label">Overtime</label>
+                    <input type="text" name="overtime" id="overtime" class="form-control form-control-sm rounded-0" value="{% if payroll.overtime %}{{payroll.overtime}}{% endif %}" required>
+                </div>
+            </div>
+            <div class="col-md-6">
+                <div class="form-group mb-3">
+                    <label for="recruitment_id" class="control-label">Recruitment</label>
+                    <select name="recruitment_id" id="recruitment_id" class="form-select form-select-sm rounded-0" required>
+                        {% if not payroll.recruitment_id %}
+                        <option value="1" disabled selected>Please Select Here</option>
+                        {% else %}
+                        <option value="1" disabled>Please Select Here</option>
+                        {% endif %}
+                        {% for recruitment in recruitments %}
+                            {% if payroll.recruitment_id and payroll.recruitment_id == recruitment.id %}
+                            <option value="{{ recruitment.id }}" selected>{{ recruitment.name }}</option>
+                            {% else %}
+                            <option value="{{ recruitment.id }}">{{ recruitment.name }}</option>
+                            {% endif %}
+                        {% endfor %}
+
+                    </select>
+                </div>
+                <div class="form-group mb-3">
+                    <label for="status" class="control-label">Status</label>
+                    <select name="status" id="status" class="form-select form-select-sm rounded-0" required>
+                        {% if payroll.status == 1 %}
+                        <option value="1" selected >Active</option>
+                        {% else %}
+                        <option value="1" >Active</option>
+                        {% endif %}
+            
+                        {% if payroll.status == 0 %}
+                        <option value="0" selected>Inactive</option>
+                        {% else %}
+                        <option value="0">Inactive</option>
+                        {% endif %}
+                    </select>
+                </div>
+                <div class="form-group mb-3">
+                    <label for="ssb_deduction" class="control-label">SSB Deduction</label>
+                    <input type="text" name="ssb_deduction" id="ssb_deduction" class="form-control form-control-sm rounded-0" value="{% if payroll.ssb_deduction %}{{payroll.ssb_deduction}}{% endif %}" required>
+                </div>
+                <div class="form-group mb-3">
+                    <label for="emergency_loan" class="control-label">Emergency Loan</label>
+                    <input type="text" name="emergency_loan" id="emergency_loan" class="form-control form-control-sm rounded-0" value="{% if payroll.emergency_loan %}{{payroll.emergency_loan}}{% endif %}" required>
+                </div>
+                <div class="form-group mb-3">
+                    <label for="income_tax" class="control-label">Income Tax</label>
+                    <input type="text" name="income_tax" id="income_tax" class="form-control form-control-sm rounded-0" value="{% if payroll.income_tax %}{{payroll.income_tax}}{% endif %}" required>
+                </div>
+                <div class="form-group mb-3">
+                    <label for="note" class="control-label">Note</label>
+                    <input type="text" name="note" id="note" class="form-control form-control-sm rounded-0" value="{% if payroll.note %}{{payroll.note}}{% endif %}" required>
+                </div>
+            </div>
+        </div>
+    </form>
+</div>
+<script>
+    $(function() {
+        $('#payroll-form').submit(function(e) {
+            e.preventDefault();
+            var _this = $(this)
+            $('.err-msg').remove();
+            var el = $('<div>')
+            el.addClass("alert alert-danger err-msg")
+            el.hide()
+            if (_this[0].checkValidity() == false) {
+                _this[0].reportValidity();
+                return false;
+            }
+            start_loader();
+            $.ajax({
+                headers: {
+                    "X-CSRFToken": '{{csrf_token}}'
+                },
+                url: "{% url 'save-payroll-page' %}",
+                data: new FormData($(this)[0]),
+                cache: false,
+                contentType: false,
+                processData: false,
+                method: 'POST',
+                type: 'POST',
+                dataType: 'json',
+                error: err => {
+                    console.log(err)
+                    alert_toast("An error occured", 'error');
+                    end_loader();
+                },
+                success: function(resp) {
+                    if (typeof resp == 'object' && resp.status == 'success') {
+                        el.removeClass("alert alert-danger err-msg")
+                        location.reload()
+                    } else if (resp.status == 'failed' && !!resp.msg) {
+                        el.text(resp.msg)
+                    } else {
+                        el.text("An error occured", 'error');
+                        end_loader();
+                        console.err(resp)
+                    }
+                    _this.prepend(el)
+                    el.show('slow')
+                    $("html, body, .modal").scrollTop(0);
+                    end_loader()
+                }
+            })
+        })
+    })
+</script>

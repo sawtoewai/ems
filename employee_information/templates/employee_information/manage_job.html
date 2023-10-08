@@ -1,0 +1,116 @@
+<div class="container-fluid">
+    <form action="" id="job-form">
+        <input type="hidden" name="id" value="{% if job.pk %}{{job.pk}}{% endif %}">
+        <div class="row">
+            <div class="col-md-6">
+                <div class="form-group mb-3">
+                    <label for="name" class="control-label">Name</label>
+                    <input type="text" name="name" id="name" class="form-control form-control-sm rounded-0" value="{% if job.code %}{{job.code}}{% endif %}" required>
+                </div>
+                <div class="form-group mb-3">
+                    <label for="sequence" class="control-label">Sequence</label>
+                    <input type="text" name="sequence" id="sequence" class="form-control form-control-sm rounded-0" value="{% if job.sequence %}{{job.sequence}}{% endif %}" required>
+                </div>
+                <div class="form-group mb-3">
+                    <label for="open_date" class="control-label">Open Date</label>
+                    <input type="date" name="open_date" id="open_date" class="form-control form-control-sm rounded-0" value="{% if job.open_date %}{{job.open_date}}{% endif %}">
+                </div>
+                <div class="form-group mb-3">
+                    <label for="expected_salary" class="control-label">Expected Salary</label>
+                    <input type="number" name="expected_salary" id="expected_salary" class="form-control form-control-sm rounded-0" value="{% if job.expected_salary %}{{job.expected_salary}}{% endif %}" required>
+                </div>
+                <div class="form-group mb-3">
+                    <label for="create_date" class="control-label">Create Date</label>
+                    <input type="date" name="create_date" id="create_date" class="form-control form-control-sm rounded-0" value="{% if job.create_date %}{{job.create_date}}{% endif %}" required>
+                </div>
+                <div class="form-group mb-3">
+                    <label for="department_id" class="control-label">Department</label>
+                    <select name="department_id" id="department_id" class="form-select form-select-sm rounded-0" required>
+                        {% if not job.department_id %}
+                        <option value="1" disabled selected>Please Select Here</option>
+                        {% else %}
+                        <option value="1" disabled>Please Select Here</option>
+                        {% endif %}
+                        {% for department in departments %}
+                            {% if job.department_id and job.department_id == department.id %}
+                            <option value="{{ department.id }}" selected>{{ department.name }}</option>
+                            {% else %}
+                            <option value="{{ department.id }}">{{ department.name }}</option>
+                            {% endif %}
+                        {% endfor %}
+                    </select>
+                </div>
+                <div class="form-group mb-3">
+                    <label for="status" class="control-label">Status</label>
+                    <select name="status" id="status" class="form-select form-select-sm rounded-0" required>
+                        {% if job.status == 1 %}
+                        <option value="1" selected >Active</option>
+                        {% else %}
+                        <option value="1" >Active</option>
+                        {% endif %}
+            
+                        {% if job.status == 0 %}
+                        <option value="0" selected>Inactive</option>
+                        {% else %}
+                        <option value="0">Inactive</option>
+                        {% endif %}
+                    </select>
+                </div>
+                <div class="form-group mb-3">
+                    <label for="note" class="control-label">Note</label>
+                    <input type="note" name="note" id="note" class="form-control form-control-sm rounded-0" value="{% if job.note %}{{job.note}}{% endif %}" required>
+                </div>
+        </div>
+    </form>
+</div>
+<script>
+    $(function() {
+        $('#job-form').submit(function(e) {
+            e.preventDefault();
+            var _this = $(this)
+            $('.err-msg').remove();
+            var el = $('<div>')
+            el.addClass("alert alert-danger err-msg")
+            el.hide()
+            if (_this[0].checkValidity() == false) {
+                _this[0].reportValidity();
+                return false;
+            }
+            start_loader();
+            $.ajax({
+                headers: {
+                    "X-CSRFToken": '{{csrf_token}}'
+                },
+                url: "{% url 'save-job-page' %}",
+                data: new FormData($(this)[0]),
+                cache: false,
+                contentType: false,
+                processData: false,
+                method: 'POST',
+                type: 'POST',
+                dataType: 'json',
+                error: err => {
+                    console.log(err)
+                    alert_toast("An error occured", 'error');
+                    end_loader();
+                },
+                success: function(resp) {
+                    if (typeof resp == 'object' && resp.status == 'success') {
+                        el.removeClass("alert alert-danger err-msg")
+                        location.reload()
+                    } else if (resp.status == 'failed' && !!resp.msg) {
+                        el.text(resp.msg)
+                    } else {
+                        el.text("An error occured", 'error');
+                        end_loader();
+                        console.err(resp)
+                    }
+                    _this.prepend(el)
+                    el.show('slow')
+                    $("html, body, .modal").scrollTop(0);
+                    end_loader()
+                }
+            })
+        })
+    })
+</script>
